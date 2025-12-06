@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Domain Inventory</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <h1>Domain Inventory (localStorage)</h1>
+  </header>
+  <main>
+    <section class="card">
+      <h2>Import / Export</h2>
+      <button class="secondary" id="export-btn">Export JSON</button>
+      <input type="file" id="import-file" accept="application/json" />
+      <span class="small" id="status-msg"></span>
+    </section>
+
+    <section class="card">
+      <h2>Add Domain</h2>
+      <form id="add-domain-form">
+        <label for="domain-name">Domain name</label>
+        <input type="text" id="domain-name" placeholder="example.com" required />
+
+        <label for="domain-hosts">Subdomains (comma-separated, use @ for root)</label>
+        <input type="text" id="domain-hosts" placeholder="@, www, mail" />
+
+        <label for="domain-notes">Notes (optional)</label>
+        <textarea id="domain-notes" rows="2" placeholder="Any extra info..."></textarea>
+
+        <button type="submit" class="primary">Add domain</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Domains</h2>
+      <table id="domain-table">
+        <thead>
+          <tr>
+            <th data-sort="name">Domain</th>
+            <th data-sort="hostCount">Hosts</th>
+            <th data-sort="notes">Notes</th>
+          </tr>
+        </thead>
+        <tbody id="domain-tbody">
+          <!-- rows inserted by JS -->
+        </tbody>
+      </table>
+      <p class="small">Click a row to see details.</p>
+    </section>
+
+    <section class="card" id="domain-detail">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem;">
+        <div>
+          <h2 id="detail-title">Domain details</h2>
+          <p class="small" id="detail-notes"></p>
+        </div>
+        <div>
+          <button class="secondary" id="refresh-domain-btn">Refresh DNS / RDAP</button>
+          <p class="small" id="detail-last-checked"></p>
+        </div>
+      </div>
+
+      <h3>Domain summary</h3>
+      <div id="detail-summary" class="dns-section small">
+        <!-- registrar, expiry, etc. -->
+      </div>
+
+      <h3>DNS summary</h3>
+      <div id="detail-dns-summary" class="dns-section small">
+        <!-- NS/MX/TXT -->
+      </div>
+
+      <h3>Hosts</h3>
+      <div id="detail-hosts"></div>
+    </section>
+  </main>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
+
