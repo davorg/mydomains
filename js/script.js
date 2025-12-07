@@ -498,6 +498,18 @@ function closeImportExportModal() {
   document.getElementById('import-export-modal').classList.remove('active');
 }
 
+// Helper function for closing modals when clicking outside
+function setupModalClickOutside(modalId, closeFn) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target.id === modalId) {
+        closeFn();
+      }
+    });
+  }
+}
+
 
 // ---------- Import / export ----------
 
@@ -822,37 +834,34 @@ document.addEventListener('DOMContentLoaded', () => {
     openModal();
   });
 
-  // Close modal when clicking outside of it
-  document.getElementById('domain-modal').addEventListener('click', (e) => {
-    if (e.target.id === 'domain-modal') {
-      closeModal();
-    }
-  });
+  // Setup click-outside-to-close for modals
+  setupModalClickOutside('domain-modal', closeModal);
+  setupModalClickOutside('import-export-modal', closeImportExportModal);
 
   document.getElementById('import-export-btn').addEventListener('click', openImportExportModal);
 
   document.getElementById('cancel-import-export-btn').addEventListener('click', closeImportExportModal);
 
-  // Close import/export modal when clicking outside of it
-  document.getElementById('import-export-modal').addEventListener('click', (e) => {
-    if (e.target.id === 'import-export-modal') {
-      closeImportExportModal();
-    }
-  });
-
-  document.getElementById('import-btn').addEventListener('click', () => {
-    document.getElementById('import-file').click();
-  });
+  const importBtn = document.getElementById('import-btn');
+  const importFile = document.getElementById('import-file');
+  
+  if (importBtn && importFile) {
+    importBtn.addEventListener('click', () => {
+      importFile.click();
+    });
+  }
 
   document.getElementById('export-btn').addEventListener('click', exportJSON);
 
-  document.getElementById('import-file').addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      importJSON(file);
-      e.target.value = '';
-    }
-  });
+  if (importFile) {
+    importFile.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        importJSON(file);
+        e.target.value = '';
+      }
+    });
+  }
 
   document.getElementById('refresh-domain-btn').addEventListener('click', () => {
     if (currentDetailId) {
