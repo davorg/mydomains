@@ -220,6 +220,21 @@ tr:hover {
   margin-bottom: 0.1rem;
 }
 
+.back-to-top {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  background: #e0e0e0;
+  color: #222;
+  text-decoration: none;
+  border-radius: 0.25rem;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.back-to-top:hover {
+  background: #d0d0d0;
+}
+
 /* Expiry-based row colouring */
 tbody tr.expiry-expired {
   background-color: #ffe5e5; /* light red */
