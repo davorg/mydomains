@@ -467,17 +467,26 @@ function startEditDomain(id) {
   document.getElementById('domain-notes').value = dom.notes || '';
 
   document.getElementById('form-title').textContent = 'Edit Domain';
-  document.getElementById('domain-submit-btn').textContent = 'Save changes';
-  document.getElementById('cancel-edit-btn').style.display = 'inline-block';
+  document.getElementById('domain-submit-btn').textContent = 'Update Domain';
+  openModal();
 }
 
 function resetFormToAddMode() {
   editingId = null;
   document.getElementById('add-domain-form').reset();
   document.getElementById('form-title').textContent = 'Add Domain';
-  document.getElementById('domain-submit-btn').textContent = 'Add domain';
-  document.getElementById('cancel-edit-btn').style.display = 'none';
+  document.getElementById('domain-submit-btn').textContent = 'Add Domain';
 }
+
+function openModal() {
+  document.getElementById('domain-modal').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('domain-modal').classList.remove('active');
+  resetFormToAddMode();
+}
+
 
 // ---------- Import / export ----------
 
@@ -789,12 +798,23 @@ document.addEventListener('DOMContentLoaded', () => {
       addDomain(name, hosts, notes);
     }
 
-    resetFormToAddMode();
+    closeModal();
   });
 
   document.getElementById('cancel-edit-btn').addEventListener('click', (e) => {
     e.preventDefault();
-    resetFormToAddMode();
+    closeModal();
+  });
+
+  document.getElementById('add-domain-btn').addEventListener('click', () => {
+    openModal();
+  });
+
+  // Close modal when clicking outside of it
+  document.getElementById('domain-modal').addEventListener('click', (e) => {
+    if (e.target.id === 'domain-modal') {
+      closeModal();
+    }
   });
 
   document.getElementById('export-btn').addEventListener('click', exportJSON);
