@@ -19,20 +19,7 @@
     </section>
 
     <section class="card">
-      <h2 id="form-title">Add Domain</h2>
-      <form id="add-domain-form">
-        <label for="domain-name">Domain name</label>
-        <input type="text" id="domain-name" placeholder="example.com" required />
-
-        <label for="domain-hosts">Subdomains (comma-separated, use @ for root)</label>
-        <input type="text" id="domain-hosts" placeholder="@, www, mail" />
-
-        <label for="domain-notes">Notes (optional)</label>
-        <textarea id="domain-notes" rows="2" placeholder="Any extra info..."></textarea>
-
-        <button type="submit" class="primary" id="domain-submit-btn">Add domain</button>
-        <button type="button" class="secondary" id="cancel-edit-btn" style="display:none;">Cancel</button>
-      </form>
+      <button type="button" class="primary" id="add-domain-btn">Add Domain</button>
     </section>
 
     <section class="card">
@@ -89,6 +76,28 @@
   <footer>
     Made by <a href="https://links.davecross.co.uk/">Dave Cross</a> / Code on <a href="https://github.com/davorg/mydomains">GitHub</a>.
   </footer>
+
+  <!-- Modal for Add/Edit Domain -->
+  <div id="domain-modal" class="modal">
+    <div class="modal-content">
+      <h2 id="form-title">Add Domain</h2>
+      <form id="add-domain-form">
+        <label for="domain-name">Domain name</label>
+        <input type="text" id="domain-name" placeholder="example.com" required />
+
+        <label for="domain-hosts">Subdomains (comma-separated, use @ for root)</label>
+        <input type="text" id="domain-hosts" placeholder="@, www, mail" />
+
+        <label for="domain-notes">Notes (optional)</label>
+        <textarea id="domain-notes" rows="2" placeholder="Any extra info..."></textarea>
+
+        <div class="modal-buttons">
+          <button type="submit" class="primary" id="domain-submit-btn">Save</button>
+          <button type="button" class="secondary" id="cancel-edit-btn">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <script src="js/script.js"></script>
 </body>
