@@ -537,13 +537,19 @@ function importJSON(file) {
       }
       
       // Normalize imported domains to ensure they have required properties
-      parsed.domains = parsed.domains.map(dom => ({
-        id: dom.id || 'dom_' + Date.now() + '_' + Math.floor(Math.random() * 10000),
-        name: dom.name,
-        hosts: dom.hosts || [],
-        notes: dom.notes || '',
-        cache: dom.cache || {}
-      }));
+      parsed.domains = parsed.domains.map((dom, index) => {
+        if (!dom.name) {
+          throw new Error(`Domain at index ${index} is missing required 'name' field`);
+        }
+        
+        return {
+          id: dom.id || 'dom_' + Date.now() + '_' + Math.floor(Math.random() * 100000),
+          name: dom.name,
+          hosts: dom.hosts || [],
+          notes: dom.notes || '',
+          cache: dom.cache || {}
+        };
+      });
       
       state = parsed;
       saveState();
