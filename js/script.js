@@ -535,6 +535,16 @@ function importJSON(file) {
       if (!parsed || !Array.isArray(parsed.domains)) {
         throw new Error('Invalid format: missing domains array');
       }
+      
+      // Normalize imported domains to ensure they have required properties
+      parsed.domains = parsed.domains.map(dom => ({
+        id: dom.id || 'dom_' + Date.now() + '_' + Math.floor(Math.random() * 10000),
+        name: dom.name,
+        hosts: dom.hosts || [],
+        notes: dom.notes || '',
+        cache: dom.cache || {}
+      }));
+      
       state = parsed;
       saveState();
       renderDomainTable();

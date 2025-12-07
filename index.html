@@ -115,19 +115,15 @@
       
       <h3>Import</h3>
       <p class="small">Import a previously exported JSON file. This will replace all current data.</p>
-      <p class="small"><strong>Minimum format:</strong> A JSON object with a <code>domains</code> array. Each domain should have a <code>name</code> and a <code>hosts</code> array.</p>
+      <p class="small"><strong>Minimum format:</strong> A JSON object with a <code>domains</code> array. Each domain must have a <code>name</code> and a <code>hosts</code> array.</p>
       <pre class="small code-block">{
-  "version": 1,
   "domains": [
     {
-      "id": "dom_123",
       "name": "example.com",
       "hosts": [
         { "name": "@" },
         { "name": "www" }
-      ],
-      "notes": "My example domain",
-      "cache": {}
+      ]
     }
   ]
 }</pre>
