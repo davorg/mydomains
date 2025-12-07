@@ -849,11 +849,7 @@ document.addEventListener('DOMContentLoaded', () => {
     importBtn.addEventListener('click', () => {
       importFile.click();
     });
-  }
-
-  document.getElementById('export-btn').addEventListener('click', exportJSON);
-
-  if (importFile) {
+    
     importFile.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (file) {
@@ -862,6 +858,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  document.getElementById('export-btn').addEventListener('click', exportJSON);
 
   document.getElementById('refresh-domain-btn').addEventListener('click', () => {
     if (currentDetailId) {
