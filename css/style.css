@@ -138,7 +138,7 @@ th[data-sort][data-asc="false"]::before {
 }
 
 tbody tr.selected {
-  font-weight: 900;
+  font-weight: bold;
   box-shadow: inset 3px 0 0 0 #007bff;
 }
 
