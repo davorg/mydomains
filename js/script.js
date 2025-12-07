@@ -503,6 +503,14 @@ function closeImportExportModal() {
   document.getElementById('import-export-modal').classList.remove('active');
 }
 
+function openOnboardingModal() {
+  document.getElementById('onboarding-modal').classList.add('active');
+}
+
+function closeOnboardingModal() {
+  document.getElementById('onboarding-modal').classList.remove('active');
+}
+
 // Helper function for closing modals when clicking outside
 function setupModalClickOutside(modalId, closeFn) {
   const modal = document.getElementById(modalId);
@@ -829,6 +837,11 @@ document.addEventListener('DOMContentLoaded', () => {
   renderDomainTable();
   setupSorting();
 
+  // Show onboarding modal if there are no domains
+  if (state.domains.length === 0) {
+    openOnboardingModal();
+  }
+
   const addForm = document.getElementById('add-domain-form');
 
   addForm.addEventListener('submit', (e) => {
@@ -858,6 +871,20 @@ document.addEventListener('DOMContentLoaded', () => {
   // Setup click-outside-to-close for modals
   setupModalClickOutside('domain-modal', closeModal);
   setupModalClickOutside('import-export-modal', closeImportExportModal);
+  setupModalClickOutside('onboarding-modal', closeOnboardingModal);
+
+  // Onboarding modal buttons
+  document.getElementById('onboarding-add-btn').addEventListener('click', () => {
+    closeOnboardingModal();
+    openModal();
+  });
+
+  document.getElementById('onboarding-import-btn').addEventListener('click', () => {
+    closeOnboardingModal();
+    openImportExportModal();
+  });
+
+  document.getElementById('onboarding-cancel-btn').addEventListener('click', closeOnboardingModal);
 
   document.getElementById('import-export-btn').addEventListener('click', openImportExportModal);
 
