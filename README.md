@@ -73,8 +73,8 @@ The expiry date is used both in the domain detail view and in the main table, wh
 1. Clone the repository:
 
    ```bash
-   git clone <this-repo-url>
-   cd <repo>
+   git clone https://github.com/davorg/mydomains.git
+   cd mydomains
    ```
 
 2. Open `index.html` in a browser (you can just open it directly from the filesystem; no server needed).
