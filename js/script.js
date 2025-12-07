@@ -7,6 +7,7 @@ let state = {
 
 let currentDetailId = null;
 let editingId = null;
+let searchQuery = '';
 
 // ---------- Core state helpers ----------
 
@@ -207,16 +208,33 @@ function getExpiryClass(dom) {
 
 // ---------- Table render / detail view ----------
 
+function getFilteredDomains() {
+  if (!searchQuery) {
+    return state.domains;
+  }
+  const query = searchQuery.toLowerCase();
+  return state.domains.filter(dom => 
+    dom.name.toLowerCase().includes(query)
+  );
+}
+
 function renderDomainTable() {
   const tbody = document.getElementById('domain-tbody');
   tbody.innerHTML = '';
 
-  state.domains.forEach((dom) => {
+  const domainsToShow = getFilteredDomains();
+
+  domainsToShow.forEach((dom) => {
     const tr = document.createElement('tr');
     tr.dataset.id = dom.id;
     const expiryClass = getExpiryClass(dom);
     if (expiryClass) {
       tr.classList.add(expiryClass);
+    }
+
+    // Add selected class if this is the current detail view
+    if (currentDetailId === dom.id) {
+      tr.classList.add('selected');
     }
 
     const hostCount = (dom.hosts || []).length;
@@ -361,6 +379,7 @@ function showDomainDetail(id) {
   });
 
   detail.classList.add('active');
+  renderDomainTable(); // Re-render to update selected row styling
 }
 
 // ---------- Add / edit / delete ----------
@@ -521,6 +540,14 @@ function setupSorting() {
     th.addEventListener('click', () => {
       const key = th.dataset.sort;
       const asc = th.dataset.asc !== 'true'; // toggle
+      
+      // Clear other headers' sort indicators
+      headers.forEach(h => {
+        if (h !== th) {
+          h.removeAttribute('data-asc');
+        }
+      });
+      
       th.dataset.asc = asc ? 'true' : 'false';
 
       state.domains.sort((a, b) => {
@@ -784,5 +811,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentDetailId) {
       refreshDomainDNSAndRDAP(currentDetailId);
     }
+  });
+
+  // Search functionality
+  const searchInput = document.getElementById('domain-search');
+  const clearSearchBtn = document.getElementById('clear-search');
+
+  searchInput.addEventListener('input', (e) => {
+    searchQuery = e.target.value;
+    renderDomainTable();
+  });
+
+  clearSearchBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    searchQuery = '';
+    renderDomainTable();
   });
 });
