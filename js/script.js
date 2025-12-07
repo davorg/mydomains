@@ -44,6 +44,11 @@ function escapeHtml(str) {
     .replace(/>/g, '&gt;');
 }
 
+// Generate a unique domain ID
+function generateDomainId() {
+  return 'dom_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+}
+
 // ---------- DNS / hosting helpers ----------
 
 // You can tweak / expand these ranges, they’re just common CF blocks
@@ -399,7 +404,7 @@ function addDomain(name, hostsList, notes) {
   const trimmedName = name.trim();
   if (!trimmedName) return;
 
-  const id = 'dom_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+  const id = generateDomainId();
 
   const hosts = normaliseHosts(hostsList);
 
@@ -543,7 +548,7 @@ function importJSON(file) {
         }
         
         return {
-          id: dom.id || 'dom_' + Date.now() + '_' + Math.floor(Math.random() * 100000),
+          id: dom.id || generateDomainId(),
           name: dom.name,
           hosts: dom.hosts || [],
           notes: dom.notes || '',
