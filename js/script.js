@@ -467,7 +467,7 @@ function startEditDomain(id) {
   document.getElementById('domain-notes').value = dom.notes || '';
 
   document.getElementById('form-title').textContent = 'Edit Domain';
-  document.getElementById('domain-submit-btn').textContent = 'Save';
+  document.getElementById('domain-submit-btn').textContent = 'Update Domain';
   openModal();
 }
 
@@ -475,7 +475,7 @@ function resetFormToAddMode() {
   editingId = null;
   document.getElementById('add-domain-form').reset();
   document.getElementById('form-title').textContent = 'Add Domain';
-  document.getElementById('domain-submit-btn').textContent = 'Save';
+  document.getElementById('domain-submit-btn').textContent = 'Add Domain';
 }
 
 function openModal() {
