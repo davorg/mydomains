@@ -379,6 +379,7 @@ function showDomainDetail(id) {
   });
 
   detail.classList.add('active');
+  renderDomainTable(); // Re-render to update selected row styling
 }
 
 // ---------- Add / edit / delete ----------
