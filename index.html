@@ -12,13 +12,6 @@
   </header>
   <main>
     <section class="card">
-      <h2>Import / Export</h2>
-      <button class="secondary" id="export-btn">Export JSON</button>
-      <input type="file" id="import-file" accept="application/json" />
-      <span class="small" id="status-msg"></span>
-    </section>
-
-    <section class="card">
       <button type="button" class="primary" id="add-domain-btn">Add Domain</button>
     </section>
 
@@ -44,6 +37,11 @@
         </tbody>
       </table>
       <p class="small">Click a row to see details.</p>
+    </section>
+
+    <section class="card">
+      <button type="button" class="secondary" id="import-export-btn">Import / Export Data</button>
+      <span class="small" id="status-msg"></span>
     </section>
 
     <section class="card" id="domain-detail">
@@ -102,6 +100,43 @@
           <button type="button" class="secondary" id="cancel-edit-btn">Cancel</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Modal for Import/Export -->
+  <div id="import-export-modal" class="modal">
+    <div class="modal-content">
+      <h2>Import / Export Data</h2>
+      <p class="small">All data is stored in your browser's localStorage. Use export to back up your data, and import to restore from a backup.</p>
+      
+      <h3>Export</h3>
+      <p class="small">Download your current domain inventory as a JSON file.</p>
+      <button class="secondary" id="export-btn">Export JSON</button>
+      
+      <h3>Import</h3>
+      <p class="small">Import a previously exported JSON file. This will replace all current data.</p>
+      <p class="small"><strong>Minimum format:</strong> A JSON object with a <code>domains</code> array. Each domain should have a <code>name</code> and a <code>hosts</code> array.</p>
+      <pre class="small code-block">{
+  "version": 1,
+  "domains": [
+    {
+      "id": "dom_123",
+      "name": "example.com",
+      "hosts": [
+        { "name": "@" },
+        { "name": "www" }
+      ],
+      "notes": "My example domain",
+      "cache": {}
+    }
+  ]
+}</pre>
+      <input type="file" id="import-file" accept="application/json" style="display: none;" />
+      <button class="secondary" id="import-btn">Choose File to Import</button>
+      
+      <div class="modal-buttons">
+        <button type="button" class="secondary" id="cancel-import-export-btn">Close</button>
+      </div>
     </div>
   </div>
 

@@ -490,6 +490,14 @@ function closeModal() {
   resetFormToAddMode();
 }
 
+function openImportExportModal() {
+  document.getElementById('import-export-modal').classList.add('active');
+}
+
+function closeImportExportModal() {
+  document.getElementById('import-export-modal').classList.remove('active');
+}
+
 
 // ---------- Import / export ----------
 
@@ -520,6 +528,7 @@ function importJSON(file) {
       renderDomainTable();
       document.getElementById('domain-detail').classList.remove('active');
       resetFormToAddMode();
+      closeImportExportModal();
       setStatus('Import successful.');
     } catch (err) {
       console.error(err);
@@ -818,6 +827,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.target.id === 'domain-modal') {
       closeModal();
     }
+  });
+
+  document.getElementById('import-export-btn').addEventListener('click', openImportExportModal);
+
+  document.getElementById('cancel-import-export-btn').addEventListener('click', closeImportExportModal);
+
+  // Close import/export modal when clicking outside of it
+  document.getElementById('import-export-modal').addEventListener('click', (e) => {
+    if (e.target.id === 'import-export-modal') {
+      closeImportExportModal();
+    }
+  });
+
+  document.getElementById('import-btn').addEventListener('click', () => {
+    document.getElementById('import-file').click();
   });
 
   document.getElementById('export-btn').addEventListener('click', exportJSON);
