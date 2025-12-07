@@ -380,6 +380,9 @@ function showDomainDetail(id) {
 
   detail.classList.add('active');
   renderDomainTable(); // Re-render to update selected row styling
+  
+  // Scroll to the detail section
+  detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ---------- Add / edit / delete ----------

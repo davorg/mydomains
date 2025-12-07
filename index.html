@@ -22,7 +22,7 @@
       <button type="button" class="primary" id="add-domain-btn">Add Domain</button>
     </section>
 
-    <section class="card">
+    <section class="card" id="domain-table-section">
       <h2>Domains</h2>
       <div class="search-container">
         <input type="text" id="domain-search" placeholder="Search by domain name..." />
@@ -52,6 +52,12 @@
           <h2 id="detail-title">Domain details</h2>
           <p class="small" id="detail-notes"></p>
         </div>
+        <div>
+          <a href="#domain-table-section" class="back-to-top">↑ Back to domain list</a>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem;">
+        <div></div>
         <div>
           <button class="secondary" id="refresh-domain-btn">Refresh DNS / RDAP</button>
           <p class="small" id="detail-last-checked"></p>
