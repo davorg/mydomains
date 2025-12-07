@@ -44,6 +44,11 @@ function escapeHtml(str) {
     .replace(/>/g, '&gt;');
 }
 
+// Generate a unique domain ID
+function generateDomainId() {
+  return 'dom_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+}
+
 // ---------- DNS / hosting helpers ----------
 
 // You can tweak / expand these ranges, they’re just common CF blocks
@@ -399,7 +404,7 @@ function addDomain(name, hostsList, notes) {
   const trimmedName = name.trim();
   if (!trimmedName) return;
 
-  const id = 'dom_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+  const id = generateDomainId();
 
   const hosts = normaliseHosts(hostsList);
 
@@ -490,6 +495,26 @@ function closeModal() {
   resetFormToAddMode();
 }
 
+function openImportExportModal() {
+  document.getElementById('import-export-modal').classList.add('active');
+}
+
+function closeImportExportModal() {
+  document.getElementById('import-export-modal').classList.remove('active');
+}
+
+// Helper function for closing modals when clicking outside
+function setupModalClickOutside(modalId, closeFn) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target.id === modalId) {
+        closeFn();
+      }
+    });
+  }
+}
+
 
 // ---------- Import / export ----------
 
@@ -515,11 +540,28 @@ function importJSON(file) {
       if (!parsed || !Array.isArray(parsed.domains)) {
         throw new Error('Invalid format: missing domains array');
       }
+      
+      // Normalize imported domains to ensure they have required properties
+      parsed.domains = parsed.domains.map((dom, index) => {
+        if (!dom.name) {
+          throw new Error(`Domain at index ${index} is missing required 'name' field`);
+        }
+        
+        return {
+          id: dom.id || generateDomainId(),
+          name: dom.name,
+          hosts: dom.hosts || [],
+          notes: dom.notes || '',
+          cache: dom.cache || {}
+        };
+      });
+      
       state = parsed;
       saveState();
       renderDomainTable();
       document.getElementById('domain-detail').classList.remove('active');
       resetFormToAddMode();
+      closeImportExportModal();
       setStatus('Import successful.');
     } catch (err) {
       console.error(err);
@@ -813,22 +855,32 @@ document.addEventListener('DOMContentLoaded', () => {
     openModal();
   });
 
-  // Close modal when clicking outside of it
-  document.getElementById('domain-modal').addEventListener('click', (e) => {
-    if (e.target.id === 'domain-modal') {
-      closeModal();
-    }
-  });
+  // Setup click-outside-to-close for modals
+  setupModalClickOutside('domain-modal', closeModal);
+  setupModalClickOutside('import-export-modal', closeImportExportModal);
+
+  document.getElementById('import-export-btn').addEventListener('click', openImportExportModal);
+
+  document.getElementById('cancel-import-export-btn').addEventListener('click', closeImportExportModal);
+
+  const importBtn = document.getElementById('import-btn');
+  const importFile = document.getElementById('import-file');
+  
+  if (importBtn && importFile) {
+    importBtn.addEventListener('click', () => {
+      importFile.click();
+    });
+    
+    importFile.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        importJSON(file);
+        e.target.value = '';
+      }
+    });
+  }
 
   document.getElementById('export-btn').addEventListener('click', exportJSON);
-
-  document.getElementById('import-file').addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      importJSON(file);
-      e.target.value = '';
-    }
-  });
 
   document.getElementById('refresh-domain-btn').addEventListener('click', () => {
     if (currentDetailId) {
