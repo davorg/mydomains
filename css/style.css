@@ -110,13 +110,13 @@ th {
   cursor: pointer;
   user-select: none;
   position: relative;
-  padding-right: 1.5rem;
+  padding-left: 1.5rem;
 }
 
-th[data-sort]::after {
+th[data-sort]::before {
   content: '';
   position: absolute;
-  right: 0.5rem;
+  left: 0.5rem;
   top: 50%;
   transform: translateY(-50%);
   width: 0;
@@ -126,18 +126,19 @@ th[data-sort]::after {
   opacity: 0.3;
 }
 
-th[data-sort][data-asc="true"]::after {
+th[data-sort][data-asc="true"]::before {
   border-bottom: 6px solid #666;
   opacity: 1;
 }
 
-th[data-sort][data-asc="false"]::after {
+th[data-sort][data-asc="false"]::before {
   border-top: 6px solid #666;
   opacity: 1;
 }
 
 tbody tr.selected {
-  font-weight: bold;
+  font-weight: 900;
+  box-shadow: inset 3px 0 0 0 #007bff;
 }
 
 tr:hover {
