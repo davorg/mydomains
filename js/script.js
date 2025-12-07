@@ -618,8 +618,22 @@ async function fetchHostRecords(fqdn) {
 }
 
 // RDAP via rdap.org (best-effort; may hit CORS issues)
+
+function rdapUrlForDomain(domain) {
+  const lower = domain.toLowerCase();
+
+  if (lower.endsWith('.de')) {
+    // DENIC’s RDAP endpoint for .de
+    return `https://rdap.denic.de/domain/${encodeURIComponent(domain)}`;
+  }
+
+  // default: rdap.org aggregator
+  return `https://rdap.org/domain/${encodeURIComponent(domain)}`;
+}
+
 async function fetchRDAP(domain) {
-  const url = `https://rdap.org/domain/${encodeURIComponent(domain)}`;
+  const url = rdapUrlForDomain(domain);
+
   try {
     const res = await fetch(url);
     if (!res.ok) {
