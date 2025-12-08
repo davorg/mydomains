@@ -20,6 +20,11 @@
 
     <section class="card" id="domain-table-section">
       <h2>Domains</h2>
+      <div id="keyword-filter-container" style="display: none; margin-bottom: 0.75rem;">
+        <span class="small">Filtering by keyword: </span>
+        <span class="pill pill-active" id="active-keyword-pill"></span>
+        <button type="button" class="secondary btn-small" id="clear-keyword-filter">Clear filter</button>
+      </div>
       <div class="search-container">
         <input type="text" id="domain-search" placeholder="Search by domain name..." />
         <button type="button" class="clear-btn" id="clear-search">×</button>
@@ -31,6 +36,7 @@
             <th data-sort="dnsProvider">DNS</th>
             <th data-sort="expiry">Expiry</th>
             <th data-sort="hostCount">Hosts</th>
+            <th>Keywords</th>
             <th data-sort="notes">Notes</th>
             <th>Actions</th>
           </tr>
@@ -92,6 +98,9 @@
 
         <label for="domain-notes">Notes (optional)</label>
         <textarea id="domain-notes" rows="2" placeholder="Any extra info..."></textarea>
+
+        <label for="domain-keywords">Keywords (comma-separated, optional)</label>
+        <input type="text" id="domain-keywords" placeholder="production, personal, important" />
 
         <div class="modal-buttons">
           <button type="submit" class="primary" id="domain-submit-btn">Add Domain</button>
