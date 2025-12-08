@@ -305,16 +305,19 @@ function renderDomainTable() {
       : '';
 
     // Build keywords pills HTML
-    const keywordsPillsHtml = (dom.keywords || []).map(kw => 
-      `<span class="pill pill-clickable" data-keyword="${escapeHtml(kw)}">${escapeHtml(kw)}</span>`
-    ).join('');
+    const keywords = dom.keywords || [];
+    const keywordsPillsHtml = keywords.length > 0
+      ? keywords.map(kw => 
+          `<span class="pill pill-clickable" data-keyword="${escapeHtml(kw)}">${escapeHtml(kw)}</span>`
+        ).join('')
+      : '—';
 
     tr.innerHTML = `
       <td>${escapeHtml(dom.name)}</td>
       <td>${escapeHtml(dnsProvider || '—')}</td>
       <td>${escapeHtml(expiry || '—')}</td>
       <td>${hostCount}</td>
-      <td class="keywords-cell">${keywordsPillsHtml || '—'}</td>
+      <td class="keywords-cell">${keywordsPillsHtml}</td>
       <td>${escapeHtml(dom.notes || '')}</td>
       <td class="actions-cell">
         <button type="button" class="secondary btn-small edit-btn">Edit</button>
