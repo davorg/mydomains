@@ -499,13 +499,20 @@ function updateDomain(id, name, hostsList, notes, keywordsStr) {
   const trimmedName = name.trim();
   if (!trimmedName) return;
 
+  const newHosts = normaliseHosts(hostsList);
+  
+  // Only clear cache if domain name or hosts changed (not for keywords/notes)
+  const nameChanged = dom.name !== trimmedName;
+  const hostsChanged = JSON.stringify(dom.hosts) !== JSON.stringify(newHosts);
+  
   dom.name = trimmedName;
   dom.notes = (notes || '').trim();
-  dom.hosts = normaliseHosts(hostsList);
+  dom.hosts = newHosts;
   dom.keywords = normalizeKeywords(keywordsStr);
 
-  // Easiest / safest: clear cache when core domain/hosts change
-  dom.cache = {};
+  if (nameChanged || hostsChanged) {
+    dom.cache = {};
+  }
 
   saveState();
   renderDomainTable();
