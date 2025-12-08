@@ -206,6 +206,25 @@ tr:hover {
   font-size: 0.8rem;
 }
 
+.pill-clickable {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.pill-clickable:hover {
+  background: #d0d0d0;
+}
+
+.pill-active {
+  background: #007bff;
+  color: #fff;
+  font-weight: bold;
+}
+
+.keywords-cell {
+  max-width: 200px;
+}
+
 .dns-section {
   margin-bottom: 0.5rem;
 }
@@ -331,9 +350,11 @@ footer a:hover {
 }
 
 @media (max-width: 600px) {
-  /* hide Notes column on narrow screens */
+  /* hide Keywords and Notes columns on narrow screens */
   th:nth-child(5),
-  td:nth-child(5) {
+  td:nth-child(5),
+  th:nth-child(6),
+  td:nth-child(6) {
     display: none;
   }
 }

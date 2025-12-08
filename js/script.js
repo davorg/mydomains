@@ -8,6 +8,7 @@ let state = {
 let currentDetailId = null;
 let editingId = null;
 let searchQuery = '';
+let activeKeywordFilter = null;
 
 // ---------- Core state helpers ----------
 
@@ -42,6 +43,18 @@ function escapeHtml(str) {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
+}
+
+// Normalize keywords: lowercase, trim, remove duplicates
+function normalizeKeywords(keywordsStr) {
+  if (!keywordsStr || !keywordsStr.trim()) {
+    return [];
+  }
+  return keywordsStr
+    .split(',')
+    .map(k => k.trim().toLowerCase())
+    .filter(k => k.length > 0)
+    .filter((k, idx, arr) => arr.indexOf(k) === idx); // remove duplicates
 }
 
 // Generate a unique domain ID
@@ -213,14 +226,53 @@ function getExpiryClass(dom) {
 
 // ---------- Table render / detail view ----------
 
-function getFilteredDomains() {
-  if (!searchQuery) {
-    return state.domains;
+function setKeywordFilter(keyword) {
+  activeKeywordFilter = keyword;
+  updateKeywordFilterUI();
+  renderDomainTable();
+  
+  // Scroll to the table
+  document.getElementById('domain-table-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function clearKeywordFilter() {
+  activeKeywordFilter = null;
+  updateKeywordFilterUI();
+  renderDomainTable();
+}
+
+function updateKeywordFilterUI() {
+  const container = document.getElementById('keyword-filter-container');
+  const pill = document.getElementById('active-keyword-pill');
+  
+  if (activeKeywordFilter) {
+    container.style.display = 'block';
+    pill.textContent = activeKeywordFilter;
+  } else {
+    container.style.display = 'none';
+    pill.textContent = '';
   }
-  const query = searchQuery.toLowerCase();
-  return state.domains.filter(dom => 
-    dom.name.toLowerCase().includes(query)
-  );
+}
+
+function getFilteredDomains() {
+  let filtered = state.domains;
+  
+  // Filter by search query
+  if (searchQuery) {
+    const query = searchQuery.toLowerCase();
+    filtered = filtered.filter(dom => 
+      dom.name.toLowerCase().includes(query)
+    );
+  }
+  
+  // Filter by keyword
+  if (activeKeywordFilter) {
+    filtered = filtered.filter(dom => 
+      (dom.keywords || []).includes(activeKeywordFilter)
+    );
+  }
+  
+  return filtered;
 }
 
 function renderDomainTable() {
@@ -252,11 +304,20 @@ function renderDomainTable() {
       ? new Date(dom.cache.rdap.expires).toISOString().slice(0, 10)
       : '';
 
+    // Build keywords pills HTML
+    const keywords = dom.keywords || [];
+    const keywordsPillsHtml = keywords.length > 0
+      ? keywords.map(kw => 
+          `<span class="pill pill-clickable" data-keyword="${escapeHtml(kw)}">${escapeHtml(kw)}</span>`
+        ).join('')
+      : '—';
+
     tr.innerHTML = `
       <td>${escapeHtml(dom.name)}</td>
       <td>${escapeHtml(dnsProvider || '—')}</td>
       <td>${escapeHtml(expiry || '—')}</td>
       <td>${hostCount}</td>
+      <td class="keywords-cell">${keywordsPillsHtml}</td>
       <td>${escapeHtml(dom.notes || '')}</td>
       <td class="actions-cell">
         <button type="button" class="secondary btn-small edit-btn">Edit</button>
@@ -270,6 +331,7 @@ function renderDomainTable() {
 
     const editBtn = tr.querySelector('.edit-btn');
     const deleteBtn = tr.querySelector('.delete-btn');
+    const keywordPills = tr.querySelectorAll('.pill-clickable');
 
     editBtn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -279,6 +341,14 @@ function renderDomainTable() {
     deleteBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       deleteDomain(dom.id);
+    });
+
+    keywordPills.forEach(pill => {
+      pill.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const keyword = pill.dataset.keyword;
+        setKeywordFilter(keyword);
+      });
     });
 
     tbody.appendChild(tr);
@@ -400,19 +470,21 @@ function normaliseHosts(hostsList) {
     .map(h => ({ name: h }));
 }
 
-function addDomain(name, hostsList, notes) {
+function addDomain(name, hostsList, notes, keywordsStr) {
   const trimmedName = name.trim();
   if (!trimmedName) return;
 
   const id = generateDomainId();
 
   const hosts = normaliseHosts(hostsList);
+  const keywords = normalizeKeywords(keywordsStr);
 
   state.domains.push({
     id,
     name: trimmedName,
     notes: (notes || '').trim(),
     hosts,
+    keywords,
     cache: {}
   });
 
@@ -420,19 +492,27 @@ function addDomain(name, hostsList, notes) {
   renderDomainTable();
 }
 
-function updateDomain(id, name, hostsList, notes) {
+function updateDomain(id, name, hostsList, notes, keywordsStr) {
   const dom = state.domains.find(d => d.id === id);
   if (!dom) return;
 
   const trimmedName = name.trim();
   if (!trimmedName) return;
 
+  const newHosts = normaliseHosts(hostsList);
+  
+  // Only clear cache if domain name or hosts changed (not for keywords/notes)
+  const nameChanged = dom.name !== trimmedName;
+  const hostsChanged = JSON.stringify(dom.hosts) !== JSON.stringify(newHosts);
+  
   dom.name = trimmedName;
   dom.notes = (notes || '').trim();
-  dom.hosts = normaliseHosts(hostsList);
+  dom.hosts = newHosts;
+  dom.keywords = normalizeKeywords(keywordsStr);
 
-  // Easiest / safest: clear cache when core domain/hosts change
-  dom.cache = {};
+  if (nameChanged || hostsChanged) {
+    dom.cache = {};
+  }
 
   saveState();
   renderDomainTable();
@@ -473,6 +553,7 @@ function startEditDomain(id) {
   document.getElementById('domain-name').value = dom.name;
   document.getElementById('domain-hosts').value = (dom.hosts || []).map(h => h.name).join(', ');
   document.getElementById('domain-notes').value = dom.notes || '';
+  document.getElementById('domain-keywords').value = (dom.keywords || []).join(', ');
 
   document.getElementById('form-title').textContent = 'Edit Domain';
   document.getElementById('domain-submit-btn').textContent = 'Update Domain';
@@ -560,6 +641,7 @@ function importJSON(file) {
           name: dom.name,
           hosts: dom.hosts || [],
           notes: dom.notes || '',
+          keywords: dom.keywords || [],
           cache: dom.cache || {}
         };
       });
@@ -849,11 +931,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const name = document.getElementById('domain-name').value;
     const hosts = document.getElementById('domain-hosts').value;
     const notes = document.getElementById('domain-notes').value;
+    const keywords = document.getElementById('domain-keywords').value;
 
     if (editingId) {
-      updateDomain(editingId, name, hosts, notes);
+      updateDomain(editingId, name, hosts, notes, keywords);
     } else {
-      addDomain(name, hosts, notes);
+      addDomain(name, hosts, notes, keywords);
     }
 
     closeModal();
@@ -928,5 +1011,12 @@ document.addEventListener('DOMContentLoaded', () => {
     searchInput.value = '';
     searchQuery = '';
     renderDomainTable();
+  });
+
+  // Keyword filter functionality
+  const clearKeywordFilterBtn = document.getElementById('clear-keyword-filter');
+  
+  clearKeywordFilterBtn.addEventListener('click', () => {
+    clearKeywordFilter();
   });
 });
