@@ -280,6 +280,19 @@ function renderDomainTable() {
   tbody.innerHTML = '';
 
   const domainsToShow = getFilteredDomains();
+  
+  // Update domain count display
+  const totalCount = state.domains.length;
+  const filteredCount = domainsToShow.length;
+  const domainCountEl = document.getElementById('domain-count');
+  
+  const isFiltered = searchQuery || activeKeywordFilter;
+  
+  if (isFiltered && filteredCount !== totalCount) {
+    domainCountEl.textContent = `Displaying ${filteredCount} (of ${totalCount}) domains`;
+  } else {
+    domainCountEl.textContent = `Displaying ${totalCount} domain${totalCount === 1 ? '' : 's'}`;
+  }
 
   domainsToShow.forEach((dom) => {
     const tr = document.createElement('tr');
