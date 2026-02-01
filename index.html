@@ -29,7 +29,18 @@
         <input type="text" id="domain-search" placeholder="Search by domain name..." />
         <button type="button" class="clear-btn" id="clear-search">×</button>
       </div>
-      <p id="domain-count" class="small"></p>
+      <div class="domain-controls">
+        <p id="domain-count" class="small"></p>
+        <div>
+          <button type="button" class="primary" id="refresh-all-btn">Refresh All</button>
+        </div>
+      </div>
+      <div id="refresh-all-progress" style="display: none; margin-bottom: 0.75rem;">
+        <div class="progress-text small"></div>
+        <div class="progress-bar-container">
+          <div class="progress-bar"></div>
+        </div>
+      </div>
       <table id="domain-table">
         <thead>
           <tr>
