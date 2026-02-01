@@ -377,6 +377,18 @@ footer a:hover {
   color: #333;
 }
 
+/* Domain count and refresh button layout */
+.domain-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.domain-controls p {
+  margin: 0;
+}
+
 @media (max-width: 600px) {
   /* hide Keywords and Notes columns on narrow screens */
   th:nth-child(5),

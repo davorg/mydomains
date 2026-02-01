@@ -970,34 +970,42 @@ async function refreshAllDomains() {
   let succeeded = 0;
   let failed = 0;
   
-  for (const dom of state.domains) {
-    progressText.textContent = `Refreshing ${completed + 1} of ${total}: ${dom.name}`;
-    progressBar.style.width = `${(completed / total) * 100}%`;
-    
-    try {
-      await refreshDomainDNSAndRDAPInternal(dom.id);
-      succeeded++;
-    } catch (err) {
-      console.error(`Failed to refresh ${dom.name}:`, err);
-      failed++;
+  try {
+    for (const dom of state.domains) {
+      progressText.textContent = `Refreshing ${completed + 1} of ${total}: ${dom.name}`;
+      
+      try {
+        await refreshDomainDNSAndRDAPInternal(dom.id);
+        succeeded++;
+      } catch (err) {
+        console.error(`Failed to refresh ${dom.name}:`, err);
+        failed++;
+      }
+      
+      completed++;
+      progressBar.style.width = `${(completed / total) * 100}%`;
     }
     
-    completed++;
-    progressBar.style.width = `${(completed / total) * 100}%`;
-  }
-  
-  // Show completion message
-  progressText.textContent = `Completed: ${succeeded} succeeded, ${failed} failed out of ${total} domains.`;
-  progressBar.style.width = '100%';
-  
-  setStatus(`Refresh all completed: ${succeeded} succeeded, ${failed} failed.`);
-  
-  // Hide progress UI after a delay
-  setTimeout(() => {
+    // Show completion message
+    progressText.textContent = `Completed: ${succeeded} succeeded, ${failed} failed out of ${total} domains.`;
+    progressBar.style.width = '100%';
+    
+    setStatus(`Refresh all completed: ${succeeded} succeeded, ${failed} failed.`);
+    
+    // Hide progress UI after a delay
+    setTimeout(() => {
+      progressContainer.style.display = 'none';
+      refreshAllBtn.disabled = false;
+      isRefreshingAll = false;
+    }, 3000);
+  } catch (err) {
+    // Ensure cleanup on unexpected errors
+    console.error('Unexpected error during refresh all:', err);
     progressContainer.style.display = 'none';
     refreshAllBtn.disabled = false;
     isRefreshingAll = false;
-  }, 3000);
+    setStatus('Refresh all failed unexpectedly. See console.');
+  }
 }
 
 // Internal refresh function without UI side effects
