@@ -333,6 +333,7 @@ function renderDomainTable() {
       <td class="keywords-cell">${keywordsPillsHtml}</td>
       <td>${escapeHtml(dom.notes || '')}</td>
       <td class="actions-cell">
+        <button type="button" class="secondary btn-small refresh-btn">Refresh</button>
         <button type="button" class="secondary btn-small edit-btn">Edit</button>
         <button type="button" class="secondary btn-small delete-btn">Delete</button>
       </td>
@@ -342,9 +343,15 @@ function renderDomainTable() {
       showDomainDetail(dom.id);
     });
 
+    const refreshBtn = tr.querySelector('.refresh-btn');
     const editBtn = tr.querySelector('.edit-btn');
     const deleteBtn = tr.querySelector('.delete-btn');
     const keywordPills = tr.querySelectorAll('.pill-clickable');
+
+    refreshBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      refreshDomainDNSAndRDAP(dom.id);
+    });
 
     editBtn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -871,7 +878,9 @@ async function refreshDomainDNSAndRDAP(id) {
   setStatus(`Refreshing DNS/RDAP for ${dom.name}...`);
 
   const refreshBtn = document.getElementById('refresh-domain-btn');
-  refreshBtn.disabled = true;
+  if (refreshBtn) {
+    refreshBtn.disabled = true;
+  }
 
   try {
     const baseName = dom.name;
@@ -914,14 +923,21 @@ async function refreshDomainDNSAndRDAP(id) {
     dom.cache.lastChecked = new Date().toISOString();
 
     saveState();
-    showDomainDetail(dom.id); // re-render
+    
+    // Only show detail view if this domain is currently selected
+    if (currentDetailId === dom.id) {
+      showDomainDetail(dom.id); // re-render
+    }
+    
     renderDomainTable();      // update DNS provider / expiry in main table
     setStatus(`Updated DNS/RDAP for ${dom.name}.`);
   } catch (err) {
     console.error(err);
     setStatus(`Error refreshing DNS/RDAP for ${dom.name}. See console.`);
   } finally {
-    refreshBtn.disabled = false;
+    if (refreshBtn) {
+      refreshBtn.disabled = false;
+    }
   }
 }
 
