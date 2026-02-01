@@ -941,6 +941,119 @@ async function refreshDomainDNSAndRDAP(id) {
   }
 }
 
+// Refresh all domains with progress indication
+let isRefreshingAll = false;
+
+async function refreshAllDomains() {
+  if (isRefreshingAll) {
+    return;
+  }
+
+  if (state.domains.length === 0) {
+    setStatus('No domains to refresh.');
+    return;
+  }
+
+  isRefreshingAll = true;
+  
+  const refreshAllBtn = document.getElementById('refresh-all-btn');
+  const progressContainer = document.getElementById('refresh-all-progress');
+  const progressText = progressContainer.querySelector('.progress-text');
+  const progressBar = progressContainer.querySelector('.progress-bar');
+  
+  // Show progress UI
+  refreshAllBtn.disabled = true;
+  progressContainer.style.display = 'block';
+  
+  const total = state.domains.length;
+  let completed = 0;
+  let succeeded = 0;
+  let failed = 0;
+  
+  for (const dom of state.domains) {
+    progressText.textContent = `Refreshing ${completed + 1} of ${total}: ${dom.name}`;
+    progressBar.style.width = `${(completed / total) * 100}%`;
+    
+    try {
+      await refreshDomainDNSAndRDAPInternal(dom.id);
+      succeeded++;
+    } catch (err) {
+      console.error(`Failed to refresh ${dom.name}:`, err);
+      failed++;
+    }
+    
+    completed++;
+    progressBar.style.width = `${(completed / total) * 100}%`;
+  }
+  
+  // Show completion message
+  progressText.textContent = `Completed: ${succeeded} succeeded, ${failed} failed out of ${total} domains.`;
+  progressBar.style.width = '100%';
+  
+  setStatus(`Refresh all completed: ${succeeded} succeeded, ${failed} failed.`);
+  
+  // Hide progress UI after a delay
+  setTimeout(() => {
+    progressContainer.style.display = 'none';
+    refreshAllBtn.disabled = false;
+    isRefreshingAll = false;
+  }, 3000);
+}
+
+// Internal refresh function without UI side effects
+async function refreshDomainDNSAndRDAPInternal(id) {
+  const dom = state.domains.find(d => d.id === id);
+  if (!dom) return;
+
+  const baseName = dom.name;
+
+  // Fetch NS, MX, TXT for the domain itself
+  const [ns, mx, txt] = await Promise.all([
+    fetchNS(baseName),
+    fetchMX(baseName),
+    fetchTXT(baseName)
+  ]);
+
+  // Fetch host records for each declared host
+  const hostsCache = {};
+  const hosts = dom.hosts || [];
+  for (const host of hosts) {
+    const fqdn = host.name === '@' ? baseName : `${host.name}.${baseName}`;
+    const rec = await fetchHostRecords(fqdn);
+    rec.hostingProvider = guessHostingProvider(fqdn, rec);
+    hostsCache[host.name] = rec;
+  }
+
+  const dnsProvider = guessDnsProvider(ns);
+
+  const dns = {
+    ns,
+    mx,
+    txt,
+    hosts: hostsCache,
+    dnsProvider
+  };
+
+  // RDAP (may fail; handle as optional)
+  const rdap = await fetchRDAP(baseName);
+
+  dom.cache = dom.cache || {};
+  dom.cache.dns = dns;
+  if (rdap) {
+    dom.cache.rdap = rdap;
+  }
+  dom.cache.lastChecked = new Date().toISOString();
+
+  saveState();
+  
+  // Only show detail view if this domain is currently selected
+  if (currentDetailId === dom.id) {
+    showDomainDetail(dom.id); // re-render
+  }
+  
+  renderDomainTable();      // update DNS provider / expiry in main table
+}
+
 // ---------- Initial setup ----------
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1047,5 +1160,12 @@ document.addEventListener('DOMContentLoaded', () => {
   
   clearKeywordFilterBtn.addEventListener('click', () => {
     clearKeywordFilter();
+  });
+
+  // Refresh all functionality
+  const refreshAllBtn = document.getElementById('refresh-all-btn');
+  
+  refreshAllBtn.addEventListener('click', () => {
+    refreshAllDomains();
   });
 });
