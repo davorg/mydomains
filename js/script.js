@@ -317,6 +317,10 @@ function renderDomainTable() {
       ? new Date(dom.cache.rdap.expires).toISOString().slice(0, 10)
       : '';
 
+    const registrar = (dom.cache && dom.cache.rdap && dom.cache.rdap.registrar)
+      ? dom.cache.rdap.registrar
+      : '';
+
     // Build keywords pills HTML
     const keywords = dom.keywords || [];
     const keywordsPillsHtml = keywords.length > 0
@@ -329,6 +333,7 @@ function renderDomainTable() {
       <td>${escapeHtml(dom.name)}</td>
       <td>${escapeHtml(dnsProvider || '—')}</td>
       <td>${escapeHtml(expiry || '—')}</td>
+      <td>${escapeHtml(registrar || '—')}</td>
       <td>${hostCount}</td>
       <td class="keywords-cell">${keywordsPillsHtml}</td>
       <td>${escapeHtml(dom.notes || '')}</td>
@@ -726,6 +731,9 @@ function setupSorting() {
         } else if (key === 'expiry') {
           av = getExpiryForSort(a);
           bv = getExpiryForSort(b);
+        } else if (key === 'registrar') {
+          av = (a.cache && a.cache.rdap && a.cache.rdap.registrar) ? a.cache.rdap.registrar.toLowerCase() : '';
+          bv = (b.cache && b.cache.rdap && b.cache.rdap.registrar) ? b.cache.rdap.registrar.toLowerCase() : '';
         } else {
           av = (a[key] || '').toString().toLowerCase();
           bv = (b[key] || '').toString().toLowerCase();
